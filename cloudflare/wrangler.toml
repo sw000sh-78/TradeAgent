@@ -1,0 +1,12 @@
+[name]
+name = "tradingview-proxy"
+main = "worker.js"
+type = "javascript"
+
+# Configure in your Cloudflare account
+account_id = "your_account_id"
+workers_dev = true
+
+[env.production]
+route = ""
+zone_id = ""

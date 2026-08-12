@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Trading Agent UI</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Trading Agent</h1>
+    </header>
+
+    <section>
+      <h2>Current States</h2>
+      {% if states %}
+      <table>
+        <thead><tr><th>Symbol</th><th>State</th></tr></thead>
+        <tbody>
+        {% for sym, st in states.items() %}
+          <tr><td>{{ sym }}</td><td>{{ st }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No symbols tracked yet.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Send Test Alert</h2>
+      <form action="/ui/send" method="post">
+        <label>Symbol: <input name="symbol" required value="AAPL" /></label>
+        <label>Signal: <input name="signal" required value="structure_break" /></label>
+        <label>Structure: <input name="structure" required value="bullish" /></label>
+        <label>Timeframe: <input name="timeframe" required value="1h" /></label>
+        <label>Price: <input name="price" required value="100.0" /></label>
+        <label>Side: <select name="side"><option>long</option><option>short</option></select></label>
+        <button type="submit">Send</button>
+      </form>
+      <form action="/ui/trigger" method="post" style="margin-top:8px">
+        <input type="hidden" name="symbol" value="AAPL" />
+        <input type="hidden" name="signal" value="structure_break" />
+        <input type="hidden" name="structure" value="bullish" />
+        <input type="hidden" name="timeframe" value="1h" />
+        <input type="hidden" name="price" value="100.0" />
+        <input type="hidden" name="side" value="long" />
+        <button type="submit">Send & Trigger Full Webhook Flow</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Recent Events (logs/events.log)</h2>
+      {% if recent %}
+      <pre class="log">{% for line in recent %}{{ line }}
+{% endfor %}</pre>
+      {% else %}
+      <p>No recent events.</p>
+      {% endif %}
+    </section>
+
+  </body>
+</html>

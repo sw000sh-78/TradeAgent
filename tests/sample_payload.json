@@ -1,0 +1,11 @@
+{
+  "symbol": "AAPL",
+  "signal": "structure_break",
+  "structure": "bullish",
+  "timeframe": "1h",
+  "price": 176.45,
+  "side": "long",
+  "extra": {
+    "description": "Example TradingView payload"
+  }
+}

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: trading-agent
+    env: docker
+    branch: main
+    dockerfilePath: Dockerfile
+    plan: free
+    env:
+      - key: SECRET_KEY
+        fromDatabase: false
+      - key: WEBHOOK_SECRET
+        fromDatabase: false
+      - key: TELEGRAM_BOT_TOKEN
+        fromDatabase: false
+      - key: TELEGRAM_CHAT_ID
+        fromDatabase: false

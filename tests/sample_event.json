@@ -1,0 +1,27 @@
+{
+  "symbol": "EURUSD",
+  "timeframe": "M15",
+  "event_type": "BOS",
+  "direction": "bullish",
+  "price": 1.08452,
+  "timestamp": "2026-07-10T23:38:00+07:00",
+  "structure": {
+    "swing_high": 1.08590,
+    "swing_low": 1.08210,
+    "previous_trend": "bearish",
+    "new_trend": "bullish"
+  },
+  "liquidity": {
+    "type": "sweep_high",
+    "level": 1.08590
+  },
+  "levels": {
+    "order_block": 1.08320,
+    "fvg": {
+      "upper": 1.08400,
+      "lower": 1.08350
+    }
+  },
+  "session": "London",
+  "confidence": 0.78
+}

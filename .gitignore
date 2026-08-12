@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+#.env files
+.env
+.env.*
+
+# Virtual environments
+venv/
+.venv/
+
+# Pytest cache
+.pytest_cache/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+
+# Editor directories
+.vscode/
+.idea/
+
+# Node
+node_modules/
+
+# Cloudflare wrangler secrets (do not commit)
+cloudflare/.wrangler-secret
+
+# Ignore compiled templates
+*.pyc
+
+# Ignore coverage
+htmlcov/
+.coverage
+

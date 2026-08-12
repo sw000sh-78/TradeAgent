@@ -1,0 +1,83 @@
+//@version=5
+indicator("Market Structure Alerts", overlay=true)
+
+// Example structure definitions
+bullishStructure = ta.lowest(low, 5) == low
+bearishStructure = ta.highest(high, 5) == high
+
+if bullishStructure
+    alert_message = json.stringify({
+        symbol: syminfo.ticker,
+        signal: "structure_break",
+        structure: "bullish",
+        timeframe: timeframe.period,
+        price: close,
+        side: "long",
+        extra: { "description": "Bullish market structure" }
+    })
+    alert(alert_message, alert.freq_once_per_bar_close)
+
+if bearishStructure
+    alert_message = json.stringify({
+        symbol: syminfo.ticker,
+        signal: "structure_break",
+        structure: "bearish",
+        timeframe: timeframe.period,
+        price: close,
+        side: "short",
+        extra: { "description": "Bearish market structure" }
+    })
+    alert(alert_message, alert.freq_once_per_bar_close)
+//@version=5
+indicator("MSA: BOS CHOCH Alerts", overlay=true)
+
+// Simple pivot detection (example only)
+left = input.int(5, "Left")
+right = input.int(5, "Right")
+ph = ta.pivothigh(high, left, right)
+pl = ta.pivotlow(low, left, right)
+
+plotph = ph ? high[right] : na
+plotpl = pl ? low[right] : na
+
+plot(plotph, style=plot.style_circles, color=color.red, title="swing_high")
+plot(plotpl, style=plot.style_circles, color=color.green, title="swing_low")
+
+// Example event detection (placeholder logic)
+event_type = ""
+direction = ""
+confidence = 0.6
+if ph
+    event_type := "BOS"
+    direction := "bearish"
+    confidence := 0.8
+if pl
+    event_type := "CHOCH"
+    direction := "bullish"
+    confidence := 0.8
+
+// Expose plots for alert placeholders
+plot1 = plotph
+plot2 = plotpl
+plot3 = na // previous_trend placeholder
+plot4 = na // new_trend placeholder
+plot5 = na // liquidity type
+plot6 = na // liquidity level
+plot7 = na // order_block
+plot8 = na // fvg upper
+plot9 = na // fvg lower
+
+// Create alert message template (use this in TradingView alert Message)
+alert_message = '{' +
+'"symbol":"{{ticker}}",' +
+'"timeframe":"{{interval}}",' +
+'"event_type":"' + event_type + '",' +
+'"direction":"' + direction + '",' +
+'"price":' + str.tostring(close) + ',' +
+'"timestamp":"{{timenow}}",' +
+'"structure":{"swing_high":' + str.tostring(plot1) + ',"swing_low":' + str.tostring(plot2) + '},' +
+'"liquidity":{"type":"' + str.tostring(plot5) + '","level":' + str.tostring(plot6) + '},' +
+'"levels":{"order_block":' + str.tostring(plot7) + ',"fvg":{"upper":' + str.tostring(plot8) + ',"lower":' + str.tostring(plot9) + '}}' +
+'}'
+
+label.new(bar_index, high, event_type, color=color.blue, textcolor=color.white)
