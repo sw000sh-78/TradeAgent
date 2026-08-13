@@ -26,7 +26,7 @@ Receives TradingView alerts (JSON), validates HMAC signature, updates a simple s
 ### Deploy to Render (recommended for simplicity)
 
 1. Push your repository to GitHub and ensure `render.yaml` is present (this repo includes `render.yaml`).
-2. Sign in to https://render.com and click "New" → "Web Service".
+2. Sign in to https://renAder.com and click "New" → "Web Service".
 3. Connect your GitHub repo and choose the `main` branch.
 4. Select "Docker" (Render will build using the repository `Dockerfile`).
 5. In the Render dashboard, set environment variables: `SECRET_KEY` (your webhook secret), `WEBHOOK_SECRET` (optional), `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
@@ -39,6 +39,51 @@ After deploy: update your Cloudflare Worker `FORWARD_URL` secret to point to `ht
 - Webhook URL: `https://your-app.../webhook`
 - Message: paste the JSON payload template (use `{{ticker}}`, `{{interval}}`, `{{close}}`, `{{timenow}}`, and `{{plot_n}}` placeholders that your Pine script exposes).
 - TradingView will POST the JSON to your webhook.
+
+### Example payload (TradingView -> webhook)
+Use this JSON as the alert message in TradingView (set `Content-Type: application/json`):
+
+```json
+{
+   "symbol": "AAPL",
+   "signal": "structure_break",
+   "structure": "bullish",
+   "timeframe": "1h",
+   "price": 176.45,
+   "side": "long",
+   "extra": { "description": "Example TradingView payload" }
+}
+```
+
+### Worker proxy usage (if TradingView can't sign requests)
+If TradingView cannot add a custom HMAC header, deploy the Cloudflare Worker in `cloudflare/worker.js` and set the Worker as the webhook URL in TradingView. The Worker computes `x-signature` using the shared `SECRET_KEY` and forwards the original body to your app's `/webhook` endpoint.
+
+- TradingView Webhook URL: `https://<your-worker-subdomain>.workers.dev/`
+- The Worker will add `x-signature: <hmac-sha256-hex>` automatically; your FastAPI app validates it.
+
+Example: POSTing directly to the Worker (no signature header needed):
+
+```bash
+curl -X POST "https://<your-worker-subdomain>.workers.dev/" \
+   -H "Content-Type: application/json" \
+   -d @tests/sample_payload.json
+```
+
+Example: POSTing directly to your app (signed manually)
+
+Compute HMAC locally and send `X-Signature` header (app expects `SECRET_KEY` / `WEBHOOK_SECRET` to match):
+
+```bash
+# compute signature (example helper included in `scripts/compute_hmac.py`)
+./scripts/compute_hmac.py -s "YOUR_WEBHOOK_SECRET" tests/sample_payload.json
+
+curl -X POST "https://your-app.example.com/webhook" \
+   -H "Content-Type: application/json" \
+   -H "X-Signature: <signature-hex>" \
+   -d @tests/sample_payload.json
+```
+
+Security note: never commit secrets to the repository. Store `SECRET_KEY` / `WEBHOOK_SECRET` in Render/Cloudflare secrets and rotate regularly.
 
 ## Test with curl
 curl -X POST "https://your-app.../webhook" \
