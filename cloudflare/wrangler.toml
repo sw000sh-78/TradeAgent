@@ -5,6 +5,7 @@ type = "javascript"
 # Fill with your Cloudflare account id
 account_id = "YOUR_ACCOUNT_ID"
 workers_dev = true
+compatibility_date = "2026-08-13"
 
 [env.production]
 route = ""
