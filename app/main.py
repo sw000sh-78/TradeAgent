@@ -81,6 +81,7 @@ async def ui_send(
 
 @app.post("/ui/trigger")
 async def ui_trigger(
+    request: Request,
     symbol: str = Form(...),
     signal: str = Form(...),
     structure: str = Form(...),
@@ -111,19 +112,36 @@ async def ui_trigger(
     sig = compute_hmac_hex(secret, body)
 
     # perform internal POST to our own webhook endpoint
-    # prefer loopback address
+    # prefer loopback address, but fall back to the public base URL seen by the browser
+    import httpx
     host = os.getenv("INTERNAL_HOST", "127.0.0.1")
     port = os.getenv("PORT", "8000")
-    url = f"http://{host}:{port}/webhook"
+    loopback_url = f"http://{host}:{port}/webhook"
 
-    # try posting and append response to logs
-    import httpx
+    # derive public URL from incoming request (works when app is behind a proxy/load-balancer)
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.post(url, content=body, headers={"x-signature": sig, "Content-Type": "application/json"})
-            result_text = f"trigger_resp status={resp.status_code} body={resp.text}"
-    except Exception as e:
-        result_text = f"trigger_error {e}"
+        base = str(request.base_url).rstrip("/")
+        public_url = f"{base}/webhook"
+    except Exception:
+        public_url = None
+
+    result_text = ""
+    try_urls = [loopback_url]
+    if public_url and public_url not in try_urls:
+        try_urls.append(public_url)
+
+    # try each candidate URL until one succeeds
+    resp = None
+    for url in try_urls:
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(url, content=body, headers={"x-signature": sig, "Content-Type": "application/json"})
+                result_text = f"trigger_resp url={url} status={resp.status_code} body={resp.text}"
+                break
+        except Exception as e:
+            # record failure and try next
+            result_text = f"trigger_error url={url} err={e}"
+            continue
 
     # append trigger result to logs
     append_event_log({"trigger": payload, "result": result_text})
