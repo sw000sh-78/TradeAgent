@@ -59,5 +59,26 @@
       {% endif %}
     </section>
 
+    <script>
+      // Auto-refresh states and recent events every 3s without full-page flash
+      (function pollUI(){
+        try{
+          fetch(window.location.href, { cache: 'no-store' })
+            .then(r => r.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+              const newStates = doc.querySelector('section:nth-of-type(1)');
+              const newRecent = doc.querySelector('section:nth-of-type(3)');
+              const curStates = document.querySelector('section:nth-of-type(1)');
+              const curRecent = document.querySelector('section:nth-of-type(3)');
+              if (newStates && curStates) curStates.replaceWith(newStates);
+              if (newRecent && curRecent) curRecent.replaceWith(newRecent);
+            }).catch(()=>{});
+        }catch(e){}
+        setTimeout(pollUI, 3000);
+      })();
+    </script>
+
   </body>
 </html>
