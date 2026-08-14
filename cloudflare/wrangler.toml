@@ -1,12 +1,13 @@
-name = "tradingview-proxy"
+name = "tradeagent-worker"
 main = "worker.js"
 type = "javascript"
-
-# Fill with your Cloudflare account id
-account_id = "YOUR_ACCOUNT_ID"
 workers_dev = true
-compatibility_date = "2026-08-13"
+compatibility_date = "2026-08-15"
+
+# Optional: set your Cloudflare account id to enable API actions from wrangler
+# account_id = "<YOUR_ACCOUNT_ID>"
 
 [env.production]
+name = "tradeagent-worker-prod"
 route = ""
 zone_id = ""
